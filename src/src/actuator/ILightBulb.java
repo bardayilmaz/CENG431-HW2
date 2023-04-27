@@ -4,5 +4,5 @@ import source.ILightSource;
 
 public interface ILightBulb {
 
-    void setValue(ILightSource source, boolean value);
+    void setValue(boolean value);
 }

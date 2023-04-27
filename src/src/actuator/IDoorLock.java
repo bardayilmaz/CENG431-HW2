@@ -4,6 +4,6 @@ import source.IMotionSource;
 
 public interface IDoorLock {
 
-    void setValue(IMotionSource source, boolean value);
+    void setValue(boolean value);
 
 }

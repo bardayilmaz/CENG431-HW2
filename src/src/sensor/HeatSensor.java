@@ -1,11 +1,25 @@
 package sensor;
 
-import source.ISource;
+import source.IHeatSource;
 
 public class HeatSensor implements IHeatSensor {
 
+    private IHeatSource heatSource;
+
+    public HeatSensor(IHeatSource heatSource) {
+        this.heatSource = heatSource;
+    }
+
     @Override
-    public Float read(ISource<? extends Float> source) {
-        return source.value();
+    public Float read() {
+        return heatSource.value();
+    }
+
+    public IHeatSource getHeatSource() {
+        return heatSource;
+    }
+
+    public void setHeatSource(IHeatSource heatSource) {
+        this.heatSource = heatSource;
     }
 }

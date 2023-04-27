@@ -41,64 +41,56 @@ public class Mediator {
     }
 
     public void setDoorValue(int index, boolean value) {
-        IMotionSource source;
         IDoorLock doorLock;
         try {
-            source = motionSources.get(index);
             doorLock = doorLocks.get(index);
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
             return;
         }
-        doorLock.setValue(source, value);
+        doorLock.setValue(value);
     }
 
     public void setLightBulbValue(int index, boolean value) {
-        ILightSource source;
         ILightBulb lightBulb;
         try {
-            source = lightSources.get(index);
             lightBulb = lightBulbs.get(index);
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
             return;
         }
-        lightBulb.setValue(source, value);
+        lightBulb.setValue(value);
     }
 
     public void setTemperature(float value) {
-        thermostat.setValue(heatSource, value);
+        thermostat.setValue(value);
     }
 
      public Boolean getDoorValue(int index) {
-        IMotionSource source;
         IMotionSensor sensor;
         try {
             sensor = motionSensors.get(index);
-            source = motionSources.get(index);
 
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
             return null;
         }
-        return sensor.read(source);
+        return sensor.read();
      }
 
      public Boolean getLightValue(int index) {
-        ILightSource lightSource;
         ILightSensor lightSensor;
         try {
             lightSensor = lightSensors.get(index);
-            lightSource = lightSources.get(index);
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
             return null;
         }
-        return lightSensor.read(lightSource);
+        return lightSensor.read();
      }
 
      public Float getTemperature() {
-        return heatSensor.read(heatSource);
+        return heatSensor.read();
      }
 
      public Boolean decideDoorValue(boolean value) {

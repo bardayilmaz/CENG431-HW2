@@ -35,8 +35,8 @@ public class Simulator {
         this.motionSensors = new ArrayList<>();
         this.doorLocks = new ArrayList<>();
         this.heatSource = new HeatSource();
-        this.heatSensor = new HeatSensor();
-        this.thermostat = new Thermostat();
+        this.heatSensor = new HeatSensor(heatSource);
+        this.thermostat = new Thermostat(heatSource);
         this.lightBulbs = new ArrayList<>();
         this.lightSources = new ArrayList<>();
         this.lightSensors = new ArrayList<>();
@@ -50,9 +50,9 @@ public class Simulator {
 
     private void initData() {
         for(int i = 0; i < this.motionSourceCount; i++) {
-            IDoorLock doorLock = new DoorLock();
             IMotionSource motionSource = new MotionSource();
-            IMotionSensor motionSensor = new MotionSensor();
+            IMotionSensor motionSensor = new MotionSensor(motionSource);
+            IDoorLock doorLock = new DoorLock(motionSource);
             doorLocks.add(doorLock);
             motionSources.add(motionSource);
             motionSensors.add(motionSensor);
@@ -60,8 +60,8 @@ public class Simulator {
 
         for(int i = 0; i < this.lightSourceCount; i++) {
             ILightSource lightSource = new LightSource();
-            ILightSensor lightSensor = new LightSensor();
-            ILightBulb lightBulb = new LightBulb();
+            ILightSensor lightSensor = new LightSensor(lightSource);
+            ILightBulb lightBulb = new LightBulb(lightSource);
             lightSources.add(lightSource);
             lightSensors.add(lightSensor);
             lightBulbs.add(lightBulb);
