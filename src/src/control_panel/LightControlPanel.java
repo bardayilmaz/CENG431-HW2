@@ -13,12 +13,12 @@ public class LightControlPanel implements ILightControlPanel{
 
 
     @Override
-    public void closeLight(int index) {
-        mediator.setLightBulbValue(index, false);
+    public boolean closeLight(int index) {
+        return mediator.setLightBulbValue(index, false);
     }
 
     @Override
-    public void openLight(int index) {
-        mediator.setLightBulbValue(index, true);
+    public boolean openLight(int index) {
+        return mediator.setLightBulbValue(index, true);
     }
 }

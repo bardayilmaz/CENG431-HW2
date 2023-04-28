@@ -51,11 +51,11 @@ public class Simulator {
 
     private void initData() {
         for(int i = 0; i < this.motionSourceCount; i++) {
-            IMotionSource motionSource = new MotionSource();
-            IMotionSensor motionSensor = new MotionSensor(motionSource);
-            IDoorLock doorLock = new DoorLock();
+            IMotionSource door = new Door();
+            IMotionSensor motionSensor = new MotionSensor(door);
+            IDoorLock doorLock = new DoorLock(door);
             doorLocks.add(doorLock);
-            motionSources.add(motionSource);
+            motionSources.add(door);
             motionSensors.add(motionSensor);
         }
 
@@ -74,25 +74,18 @@ public class Simulator {
         Random random = new Random();
         for(int j = 0; j < motionSourceCount; j++) {
             String doorNumber= "Door Number "+ j;
-            // %5 Chance to Create Motion
-            if(Math.random()*100<5){
-                motionSources.get(j).setValue(true);
-            }
-            // Sensor Control
-            mediator.autoDoorControl(j); // If any motion occur shut the door.
-
             // User Control
-            if(random.nextBoolean()) {
-                if (random.nextBoolean()) {
-                    doorLockControlPanel.unlockDoor(j);
-                    System.out.println(doorNumber+" -> Unlocked by User");
-                } else {
-                    doorLockControlPanel.lockDoor(j);
-                    System.out.println(doorNumber + " -> Locked by User");
+            if(random.nextBoolean()) { // does user lock/unlock door?
+                if (random.nextBoolean()) { // unlocks door
+                    if(doorLockControlPanel.unlockDoor(j)) {
+                        System.out.println(doorNumber+" -> Unlocked by User");
+                    }
+                } else { // locks door
+                    if(doorLockControlPanel.lockDoor(j)) {
+                        System.out.println(doorNumber + " -> Locked by User");
+                    }
                 }
             }
-            // After every iteration, motion should reset.
-            motionSources.get(j).setValue(false);
         }
     }
 
@@ -100,18 +93,16 @@ public class Simulator {
         Random random = new Random();
         for(int j = 0; j < lightSourceCount; j++) {
             String lightSourceNumber= "Light Source "+ j;
-
-            // Sensor Control, If the user open the light and forget one hour, the sensor shuts the bulb.
-            mediator.autoLightControl(j);
-
             // User Control
             if(random.nextBoolean()) {
                 if (random.nextBoolean()) {
-                    lightControlPanel.openLight(j);
-                    System.out.println(lightSourceNumber + "Has Opened by User");
+                    if(lightControlPanel.openLight(j)) {
+                        System.out.println(lightSourceNumber + " Has Opened by User");
+                    }
                 } else {
-                    lightControlPanel.closeLight(j);
-                    System.out.println(lightSourceNumber + "Has Closed by User");
+                    if(lightControlPanel.closeLight(j)){
+                        System.out.println(lightSourceNumber + " Has Closed by User");
+                    }
                 }
             }
         }
@@ -119,24 +110,30 @@ public class Simulator {
 
     private void simulateHeatControl(){
         Random random = new Random();
-        float randomDegree = random.nextFloat(41) - 5; // Creating an environment -5 Degrees to 40 Degrees
+        float temp = heatSource.value();
+        int tempFactor = random.nextBoolean() ? 1 : -1;
+        float changeRate = random.nextFloat(10);
+        float newTemp = temp + (tempFactor * changeRate);
+        // decrease or increase temperature 0-10 degrees.
+        heatSource.setValue(newTemp);
+        System.out.println("Current temperature:"+ heatSource.value());
 
-        // Random Environment Degree is set.
-        heatSource.setValue(randomDegree);
-        System.out.println("Environment Degree:"+ heatSource.value());
-        // Auto Control of Heat
-        mediator.autoHeatControl();
+        // Auto Control of Heat by control panel
+        temperatureControlPanel.autoTemperatureControl();
 
     }
 
     public void simulate()  {
         int length = 20;
 
-        for(int i = 0; i < length; i++) {
+        for(int i = 1; i <= length; i++) {
             System.out.println("---------- Hour:"+ i +"------------");
 
+            System.out.println("---------- Doors ------------");
             simulateDoorLocks();
+            System.out.println("---------- Light Bulbs ------------");
             simulateLightBulbs();
+            System.out.println("---------- Temperature ------------");
             simulateHeatControl();
 
             try {

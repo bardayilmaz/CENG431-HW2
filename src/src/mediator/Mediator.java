@@ -33,26 +33,38 @@ public class Mediator {
         this.heatSensor = heatSensor;
     }
 
-    public void setDoorValue(int index, boolean value) {
+    public boolean setDoorValue(int index, boolean value) {
         IDoorLock doorLock;
+        IMotionSensor motionSensor;
         try {
             doorLock = doorLocks.get(index);
+            motionSensor = motionSensors.get(index);
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
-            return;
+            return false;
+        }
+        if(motionSensor.read().equals(value)) {
+            return false;
         }
         doorLock.setValue(value);
+        return true;
     }
 
-    public void setLightBulbValue(int index, boolean value) {
+    public boolean setLightBulbValue(int index, boolean value) {
         ILightBulb lightBulb;
+        ILightSensor lightSensor;
         try {
             lightBulb = lightBulbs.get(index);
+            lightSensor = lightSensors.get(index);
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
-            return;
+            return false;
+        }
+        if(lightSensor.read().equals(value)) {
+            return false;
         }
         lightBulb.setValue(value);
+        return true;
     }
 
     public void setTemperature(float value) {
@@ -84,23 +96,6 @@ public class Mediator {
      private Float getTemperature() {
         return heatSensor.read();
      }
-
-     public void autoDoorControl(int index) {
-        if (Boolean.TRUE.equals(this.getMotionValue(index))) {
-            System.out.println("Sensors found the door:"+index+" has motion. Locking the door "+index +"...");
-            setDoorValue(index,false);
-        }
-     }
-
-     public void autoLightControl(int index) {
-         Boolean lightValue = this.getLightValue(index);
-         if (lightValue) {
-             System.out.println("Sensors detected that the light bulb "+index+ " has been on for 1 hour. Closing the" +
-                     " light bulb " + index +"...");
-             this.setLightBulbValue(index,false);
-         }
-     }
-
 
     public void autoHeatControl() {
         Float envTemperature = getTemperature();

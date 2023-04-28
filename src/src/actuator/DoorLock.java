@@ -4,18 +4,18 @@ import source.IMotionSource;
 
 public class DoorLock implements IDoorLock {
 
-    private Boolean value;
+    private IMotionSource motionSource;
 
-    public DoorLock() {
-        value = false;
+    public DoorLock(IMotionSource motionSource) {
+        this.motionSource = motionSource;
     }
 
     @Override
     public void setValue(boolean value) {
-        this.value=value;
+        motionSource.setValue(value);
     }
 
     public Boolean getValue(){
-        return value;
+        return motionSource.value();
     }
 }

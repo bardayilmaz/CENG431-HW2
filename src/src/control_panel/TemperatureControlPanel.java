@@ -11,7 +11,7 @@ public class TemperatureControlPanel implements ITemperatureControlPanel {
     }
 
     @Override
-    public void setTemperature(float temperature) {
-        mediator.setTemperature(temperature);
+    public void autoTemperatureControl() {
+        mediator.autoHeatControl();
     }
 }

@@ -1,10 +1,10 @@
 package source;
 
-public class MotionSource implements IMotionSource {
+public class Door implements IMotionSource {
 
     private boolean value;
 
-    public MotionSource() {
+    public Door() {
         this.value = false;
     }
 

@@ -11,12 +11,12 @@ public class DoorLockControlPanel implements IDoorLockControlPanel{
     }
 
     @Override
-    public void lockDoor(int index) {
-        mediator.setDoorValue(index, false);
+    public boolean lockDoor(int index) {
+        return mediator.setDoorValue(index, true);
     }
 
     @Override
-    public void unlockDoor(int index) {
-        mediator.setDoorValue(index, true);
+    public boolean unlockDoor(int index) {
+        return mediator.setDoorValue(index, false);
     }
 }

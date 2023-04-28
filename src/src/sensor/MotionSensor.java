@@ -1,7 +1,6 @@
 package sensor;
 
 import source.IMotionSource;
-import source.ISource;
 
 public class MotionSensor implements IMotionSensor {
 
