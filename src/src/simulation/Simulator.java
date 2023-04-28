@@ -41,7 +41,7 @@ public class Simulator {
         this.lightBulbs = new ArrayList<>();
         this.lightSources = new ArrayList<>();
         this.lightSensors = new ArrayList<>();
-        this.mediator = new Mediator(lightSources, motionSources, heatSource, doorLocks, lightBulbs, thermostat,
+        this.mediator = new Mediator(doorLocks, lightBulbs, thermostat,
                 motionSensors, lightSensors, heatSensor);
         this.lightControlPanel = new LightControlPanel(mediator);
         this.doorLockControlPanel = new DoorLockControlPanel(mediator);
@@ -53,7 +53,7 @@ public class Simulator {
         for(int i = 0; i < this.motionSourceCount; i++) {
             IMotionSource motionSource = new MotionSource();
             IMotionSensor motionSensor = new MotionSensor(motionSource);
-            IDoorLock doorLock = new DoorLock(motionSource);
+            IDoorLock doorLock = new DoorLock();
             doorLocks.add(doorLock);
             motionSources.add(motionSource);
             motionSensors.add(motionSensor);
@@ -70,65 +70,74 @@ public class Simulator {
 
     }
 
+    private void simulateDoorLocks(){
+        Random random = new Random();
+        for(int j = 0; j < motionSourceCount; j++) {
+            String doorNumber= "Door Number "+ j;
+            // %5 Chance to Create Motion
+            if(Math.random()*100<5){
+                motionSources.get(j).setValue(true);
+            }
+            // Sensor Control
+            mediator.autoDoorControl(j); // If any motion occur shut the door.
+
+            // User Control
+            if(random.nextBoolean()) {
+                if (random.nextBoolean()) {
+                    doorLockControlPanel.unlockDoor(j);
+                    System.out.println(doorNumber+" -> Unlocked by User");
+                } else {
+                    doorLockControlPanel.lockDoor(j);
+                    System.out.println(doorNumber + " -> Locked by User");
+                }
+            }
+            // After every iteration, motion should reset.
+            motionSources.get(j).setValue(false);
+        }
+    }
+
+    private void simulateLightBulbs(){
+        Random random = new Random();
+        for(int j = 0; j < lightSourceCount; j++) {
+            String lightSourceNumber= "Light Source "+ j;
+
+            // Sensor Control, If the user open the light and forget one hour, the sensor shuts the bulb.
+            mediator.autoLightControl(j);
+
+            // User Control
+            if(random.nextBoolean()) {
+                if (random.nextBoolean()) {
+                    lightControlPanel.openLight(j);
+                    System.out.println(lightSourceNumber + "Has Opened by User");
+                } else {
+                    lightControlPanel.closeLight(j);
+                    System.out.println(lightSourceNumber + "Has Closed by User");
+                }
+            }
+        }
+    }
+
+    private void simulateHeatControl(){
+        Random random = new Random();
+        float randomDegree = random.nextFloat(41) - 5; // Creating an environment -5 Degrees to 40 Degrees
+
+        // Random Environment Degree is set.
+        heatSource.setValue(randomDegree);
+        System.out.println("Environment Degree:"+ heatSource.value());
+        // Auto Control of Heat
+        mediator.autoHeatControl();
+
+    }
+
     public void simulate()  {
         int length = 20;
-        Random random = new Random();
+
         for(int i = 0; i < length; i++) {
             System.out.println("---------- Hour:"+ i +"------------");
-            for(int j = 0; j < motionSourceCount; j++) {
-                String doorNumber= "Door Number "+ j;
 
-                // Sensor Control
-                Boolean doorValue = mediator.getDoorValue(j);
-                doorValue = mediator.decideDoorValue(doorValue);
-                if(doorValue != null) {
-                    System.out.println("Motion Has Detected!: " + doorNumber + " is Locked Automatically");
-                    mediator.setDoorValue(j, doorValue);
-                }
-
-                // User Control
-                if(random.nextBoolean()) {
-                    if (random.nextBoolean()) {
-                        doorLockControlPanel.unlockDoor(j);
-                        System.out.println(doorNumber+" is Unlocked by User");
-                    } else {
-                        if (doorValue != null) {
-                            doorLockControlPanel.lockDoor(j);
-                            System.out.println(doorNumber + " is Locked by User");
-                        }
-                    }
-                }
-            }
-
-            for(int j = 0; j < lightSourceCount; j++) {
-                String lightSourceNumber= "Light Source "+ j;
-                Boolean lightValue = mediator.getLightValue(j);
-                lightValue = mediator.decideLightValue(lightValue);
-                if(lightValue != null) {
-                    System.out.println(lightSourceNumber + "is closed Automatically");
-                    mediator.setLightBulbValue(j, lightValue);
-                }
-                if(random.nextBoolean()) {
-                    if (random.nextBoolean()) {
-                        lightControlPanel.openLight(j);
-                        System.out.println(lightSourceNumber + "Has Opened by User");
-                    } else {
-                        lightControlPanel.closeLight(j);
-                        System.out.println(lightSourceNumber + "Has Closed by User");
-                    }
-                }
-
-            }
-            if(random.nextBoolean()) {
-                temperatureControlPanel.setTemperature(random.nextFloat(147f) - 89f);
-                System.out.println("Heat  changed to " + heatSource.value() + " by user");
-            }
-            Float temperature = mediator.getTemperature();
-            temperature = mediator.decideTemperatureValue(temperature);
-            if(temperature != null) {
-                mediator.setTemperature(temperature);
-                System.out.println("Heat  changed to " + heatSource.value() + " automatically");
-            }
+            simulateDoorLocks();
+            simulateLightBulbs();
+            simulateHeatControl();
 
             try {
                 Thread.sleep(1000);

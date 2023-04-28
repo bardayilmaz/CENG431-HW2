@@ -14,10 +14,6 @@ import java.util.List;
 
 public class Mediator {
 
-    private List<ILightSource> lightSources;
-    private List<IMotionSource> motionSources;
-    private IHeatSource heatSource;
-
     private List<IDoorLock> doorLocks;
     private List<ILightBulb> lightBulbs;
     private IThermostat thermostat;
@@ -26,12 +22,9 @@ public class Mediator {
     private List<ILightSensor> lightSensors;
     private IHeatSensor heatSensor;
 
-    public Mediator(List<ILightSource> lightSources, List<IMotionSource> motionSources, IHeatSource heatSource,
-                    List<IDoorLock> doorLocks, List<ILightBulb> lightBulbs, IThermostat thermostat,
+    public Mediator(List<IDoorLock> doorLocks, List<ILightBulb> lightBulbs, IThermostat thermostat,
                     List<IMotionSensor> motionSensors, List<ILightSensor> lightSensors, IHeatSensor heatSensor) {
-        this.lightSources = lightSources;
-        this.motionSources = motionSources;
-        this.heatSource = heatSource;
+
         this.doorLocks = doorLocks;
         this.lightBulbs = lightBulbs;
         this.thermostat = thermostat;
@@ -66,11 +59,10 @@ public class Mediator {
         thermostat.setValue(value);
     }
 
-     public Boolean getDoorValue(int index) {
+     private Boolean getMotionValue(int index) {
         IMotionSensor sensor;
         try {
             sensor = motionSensors.get(index);
-
         } catch (IndexOutOfBoundsException exception) {
             System.err.println("Invalid index!");
             return null;
@@ -78,7 +70,7 @@ public class Mediator {
         return sensor.read();
      }
 
-     public Boolean getLightValue(int index) {
+     private Boolean getLightValue(int index) {
         ILightSensor lightSensor;
         try {
             lightSensor = lightSensors.get(index);
@@ -89,31 +81,36 @@ public class Mediator {
         return lightSensor.read();
      }
 
-     public Float getTemperature() {
+     private Float getTemperature() {
         return heatSensor.read();
      }
 
-     public Boolean decideDoorValue(boolean value) {
-        if (value) {
-            return false;
-        } else {
-            return null; // means do nothing
+     public void autoDoorControl(int index) {
+        if (Boolean.TRUE.equals(this.getMotionValue(index))) {
+            System.out.println("Sensors found the door:"+index+" has motion. Locking the door "+index +"...");
+            setDoorValue(index,false);
         }
      }
 
-     public Boolean decideLightValue(boolean value) {
-         if (value) {
-             return false;
-         } else {
-             return null; // means do nothing
+     public void autoLightControl(int index) {
+         Boolean lightValue = this.getLightValue(index);
+         if (lightValue) {
+             System.out.println("Sensors detected that the light bulb "+index+ " has been on for 1 hour. Closing the" +
+                     " light bulb " + index +"...");
+             this.setLightBulbValue(index,false);
          }
      }
 
 
-    public Float decideTemperatureValue(float value) {
-        if(value <= 20f || value >= 25f) {
-            return 22f;
+    public void autoHeatControl() {
+        Float envTemperature = getTemperature();
+        if(envTemperature <= 20f) {
+            System.out.println("The Temperature is too Low. Setting the thermostat to 22 Degree");
+            this.setTemperature(22f);
         }
-        return null;
+        if(envTemperature > 25f) {
+            System.out.println("The Temperature is too High. Setting the thermostat to 22 Degree");
+            this.setTemperature(22f);
+        }
     }
 }
