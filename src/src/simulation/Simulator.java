@@ -31,10 +31,11 @@ public class Simulator {
     public Simulator(int motionSourceCount, int lightSourceCount) {
         this.motionSourceCount = motionSourceCount;
         this.lightSourceCount = lightSourceCount;
+        this.heatSource = new HeatSource();
+
         this.motionSources = new ArrayList<>();
         this.motionSensors = new ArrayList<>();
         this.doorLocks = new ArrayList<>();
-        this.heatSource = new HeatSource();
         this.heatSensor = new HeatSensor(heatSource);
         this.thermostat = new Thermostat(heatSource);
         this.lightBulbs = new ArrayList<>();
@@ -69,50 +70,64 @@ public class Simulator {
 
     }
 
-    public void simulate() {
+    public void simulate()  {
         int length = 20;
         Random random = new Random();
         for(int i = 0; i < length; i++) {
+            System.out.println("---------- Hour:"+ i +"------------");
             for(int j = 0; j < motionSourceCount; j++) {
-                if(random.nextBoolean()) {
-                    if (random.nextBoolean()) {
-                        doorLockControlPanel.unlockDoor(j);
-                    } else {
-                        doorLockControlPanel.lockDoor(j);
-                    }
-                    System.out.println("door number " + j + " changed to " + motionSources.get(j).value());
-                }
+                String doorNumber= "Door Number "+ j;
 
+                // Sensor Control
                 Boolean doorValue = mediator.getDoorValue(j);
                 doorValue = mediator.decideDoorValue(doorValue);
                 if(doorValue != null) {
+                    System.out.println("Motion Has Detected!: " + doorNumber + " is Locked Automatically");
                     mediator.setDoorValue(j, doorValue);
+                }
+
+                // User Control
+                if(random.nextBoolean()) {
+                    if (random.nextBoolean()) {
+                        doorLockControlPanel.unlockDoor(j);
+                        System.out.println(doorNumber+" is Unlocked by User");
+                    } else {
+                        if (doorValue != null) {
+                            doorLockControlPanel.lockDoor(j);
+                            System.out.println(doorNumber + " is Locked by User");
+                        }
+                    }
                 }
             }
 
             for(int j = 0; j < lightSourceCount; j++) {
-                if(random.nextBoolean()) {
-                    if (random.nextBoolean()) {
-                        lightControlPanel.openLight(j);
-                    } else {
-                        lightControlPanel.closeLight(j);
-                    }
-                    System.out.println("light number " + j + " changed to " + lightSources.get(j).value() + " by user");
-                }
+                String lightSourceNumber= "Light Source "+ j;
                 Boolean lightValue = mediator.getLightValue(j);
                 lightValue = mediator.decideLightValue(lightValue);
                 if(lightValue != null) {
+                    System.out.println(lightSourceNumber + "is closed Automatically");
                     mediator.setLightBulbValue(j, lightValue);
                 }
+                if(random.nextBoolean()) {
+                    if (random.nextBoolean()) {
+                        lightControlPanel.openLight(j);
+                        System.out.println(lightSourceNumber + "Has Opened by User");
+                    } else {
+                        lightControlPanel.closeLight(j);
+                        System.out.println(lightSourceNumber + "Has Closed by User");
+                    }
+                }
+
             }
             if(random.nextBoolean()) {
                 temperatureControlPanel.setTemperature(random.nextFloat(147f) - 89f);
-                System.out.println("heat  changed to " + heatSource.value() + " by user");
+                System.out.println("Heat  changed to " + heatSource.value() + " by user");
             }
             Float temperature = mediator.getTemperature();
             temperature = mediator.decideTemperatureValue(temperature);
             if(temperature != null) {
                 mediator.setTemperature(temperature);
+                System.out.println("Heat  changed to " + heatSource.value() + " automatically");
             }
 
             try {
