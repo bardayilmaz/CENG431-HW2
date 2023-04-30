@@ -6,9 +6,6 @@ import actuator.IThermostat;
 import sensor.IHeatSensor;
 import sensor.ILightSensor;
 import sensor.IMotionSensor;
-import source.IHeatSource;
-import source.ILightSource;
-import source.IMotionSource;
 
 import java.util.List;
 
